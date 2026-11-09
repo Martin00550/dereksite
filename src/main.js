@@ -1,3 +1,4 @@
+import { mountComparison } from './comparison.js';
 import { client as c } from './client-config.js';
 import './style.css';
 const arrow = '<span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span>';
@@ -27,3 +28,5 @@ function closeMenu(){mobile.hidden=true; toggle.setAttribute('aria-expanded','fa
 toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';mobile.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close navigation':'Open navigation');});
 mobile.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+
+mountComparison(document.querySelector('.hero-art'), c.heroComparison);
