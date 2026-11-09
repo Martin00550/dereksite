@@ -6,6 +6,7 @@ const server = spawn(
   process.execPath,
   [
     "node_modules/vite/bin/vite.js",
+    ...(process.env.TEST_PRODUCTION ? ["preview"] : []),
     "--host",
     "127.0.0.1",
     "--port",
@@ -42,6 +43,19 @@ try {
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
       `overflow at ${width}`,
+    );
+  }
+  await page.waitForFunction(
+    () =>
+      document.querySelector(".hero-art").dataset.comparisonState === "ready",
+  );
+  assert.equal(await page.locator(".hero-art .comparison img").count(), 2);
+  for (const img of await page.locator(".hero-art .comparison img").all()) {
+    assert.ok(
+      await img.evaluate(
+        (el) =>
+          el.naturalWidth > 0 && new URL(el.src).origin === location.origin,
+      ),
     );
   }
   assert.equal(await page.locator("h1").count(), 1);
@@ -144,150 +158,220 @@ try {
   console.log(
     "PASS: no enquiry form, single hero CTA, direct Messenger service links and mobile contact visibility.",
   );
+  assert.equal(await page.locator(".project-card").count(), 4);
+  for (const card of await page.locator(".project-card").all()) {
+    await card.scrollIntoViewIfNeeded();
+    for (const state of ["before", "after"]) {
+      await card.locator(`[data-state="${state}"]`).click();
+      await card.locator("img").evaluate((img) => img.decode());
+      assert.equal(
+        await card
+          .locator(`[data-state="${state}"]`)
+          .getAttribute("aria-pressed"),
+        "true",
+      );
+      assert.ok(
+        await card
+          .locator("img")
+          .evaluate(
+            (img) =>
+              img.naturalWidth > 0 &&
+              new URL(img.src).origin === location.origin,
+          ),
+      );
+    }
+    await card.locator(".project-photo").click();
+    const dialog = page.locator("#repair-photo-dialog");
+    assert.equal(await dialog.isVisible(), true);
+    await dialog.locator('[data-state="before"]').click();
+    await dialog.locator("img").evaluate((img) => img.decode());
+    assert.match(await dialog.locator("h3").innerText(), /Before/);
+    assert.equal(
+      await dialog
+        .locator("img")
+        .evaluate((img) => getComputedStyle(img).objectFit),
+      "contain",
+    );
+    await dialog.locator('[data-state="after"]').click();
+    await dialog.locator("img").evaluate((img) => img.decode());
+    await page.keyboard.press("Escape");
+    assert.equal(await dialog.isVisible(), false);
+    assert.equal(
+      await card
+        .locator(".project-photo")
+        .evaluate((el) => el === document.activeElement),
+      true,
+    );
+  }
+  await page.locator(".workshop-photo").scrollIntoViewIfNeeded();
+  await page.locator(".workshop-photo img").evaluate((img) => img.decode());
+  assert.ok(
+    await page
+      .locator(".workshop-photo img")
+      .evaluate((img) => img.naturalWidth === 810),
+  );
+  assert.deepEqual(errors, []);
+  console.log(
+    "PASS: original local hero photos, four gallery pairs, all images load, full-size before/after dialog, Escape and focus return.",
+  );
   mkdirSync("test-results", { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "test-results/derek-mobile.png",
     fullPage: true,
   });
+  await page.locator('.hero').screenshot({path:'test-results/hero-mobile.png'});
+  await page.locator('#work').screenshot({path:'test-results/gallery-mobile.png'});
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({
     path: "test-results/derek-desktop.png",
     fullPage: true,
   });
-  const mountFixture = async () => {
-    const { mountComparison } = await import("/src/comparison.js");
-    const svg = (color) =>
-      "data:image/svg+xml," +
-      encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="500"><rect width="960" height="500" fill="${color}"/></svg>`,
+  await page.locator('.hero').screenshot({path:'test-results/hero-desktop.png'});
+  await page.locator('#work').screenshot({path:'test-results/gallery-desktop.png'});
+  if (!process.env.TEST_PRODUCTION) {
+    const mountFixture = async () => {
+      const { mountComparison } = await import("/src/comparison.js");
+      const svg = (color) =>
+        "data:image/svg+xml," +
+        encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="500"><rect width="960" height="500" fill="${color}"/></svg>`,
+        );
+      mountComparison(document.querySelector(".hero-art"), {
+        before: svg("red"),
+        after: svg("blue"),
+      });
+    };
+    await page.evaluate(mountFixture);
+    await page.waitForFunction(
+      () =>
+        document.querySelector(".hero-art").dataset.comparisonState === "ready",
+    );
+    const range = page.getByRole("slider", {
+      name: "Compare blue car before and after repairs",
+    });
+    await range.waitFor();
+    await range.focus();
+    await page.keyboard.press("ArrowRight");
+    assert.equal(await range.inputValue(), "51");
+    assert.equal(
+      await range.getAttribute("aria-valuetext"),
+      "51% before, 49% after",
+    );
+    await range.fill("0");
+    await range.dispatchEvent("input");
+    assert.equal(
+      await page
+        .locator(".comparison")
+        .evaluate((el) => el.style.getPropertyValue("--reveal")),
+      "0%",
+    );
+    await range.fill("100");
+    await range.dispatchEvent("input");
+    assert.equal(
+      await range.getAttribute("aria-valuetext"),
+      "100% before, 0% after",
+    );
+    for (const width of [320, 390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const fit = await page.locator(".comparison").evaluate((el) => {
+        const box = el.getBoundingClientRect();
+        return {
+          width: box.width,
+          height: box.height,
+          fits: [...el.querySelectorAll("img")].every((img) => {
+            const b = img.getBoundingClientRect();
+            return (
+              Math.abs(b.width - box.width) < 1 &&
+              Math.abs(b.height - box.height) < 1 &&
+              getComputedStyle(img).objectFit === "cover"
+            );
+          }),
+        };
+      });
+      assert.ok(
+        fit.fits && Math.abs(fit.width / fit.height - 15 / 8) < 0.03,
+        `image fit at ${width}`,
       );
-    mountComparison(document.querySelector(".hero-art"), {
-      before: svg("red"),
-      after: svg("blue"),
+    }
+    await range.scrollIntoViewIfNeeded();
+    const box = await range.boundingBox();
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.5);
+    assert.ok(Math.abs(Number(await range.inputValue()) - 75) <= 1);
+    await page.mouse.move(box.x + box.width + 25, box.y + box.height * 0.5);
+    assert.equal(await range.inputValue(), "100");
+    await page.mouse.move(box.x - 25, box.y + box.height * 0.5);
+    assert.equal(await range.inputValue(), "0");
+    await page.mouse.up();
+    await range.focus();
+    await page.keyboard.press("End");
+    assert.equal(await range.inputValue(), "100");
+    await page.keyboard.press("Home");
+    assert.equal(await range.inputValue(), "0");
+    // A failed replacement must preserve the current visual.
+    await page.evaluate(async () => {
+      const { mountComparison } = await import("/src/comparison.js");
+      mountComparison(document.querySelector(".hero-art"), {
+        before: "data:image/png;base64,invalid",
+        after: "data:image/png;base64,invalid",
+      });
     });
-  };
-  await page.evaluate(mountFixture);
-  const range = page.getByRole("slider", {
-    name: "Compare blue car before and after repairs",
-  });
-  await range.waitFor();
-  await range.focus();
-  await page.keyboard.press("ArrowRight");
-  assert.equal(await range.inputValue(), "51");
-  assert.equal(
-    await range.getAttribute("aria-valuetext"),
-    "51% before, 49% after",
-  );
-  await range.fill("0");
-  await range.dispatchEvent("input");
-  assert.equal(
-    await page
-      .locator(".comparison")
-      .evaluate((el) => el.style.getPropertyValue("--reveal")),
-    "0%",
-  );
-  await range.fill("100");
-  await range.dispatchEvent("input");
-  assert.equal(
-    await range.getAttribute("aria-valuetext"),
-    "100% before, 0% after",
-  );
-  for (const width of [320, 390, 768, 1440]) {
-    await page.setViewportSize({ width, height: 1000 });
-    const fit = await page.locator(".comparison").evaluate((el) => {
-      const box = el.getBoundingClientRect();
-      return {
-        width: box.width,
-        height: box.height,
-        fits: [...el.querySelectorAll("img")].every((img) => {
-          const b = img.getBoundingClientRect();
-          return (
-            Math.abs(b.width - box.width) < 1 &&
-            Math.abs(b.height - box.height) < 1 &&
-            getComputedStyle(img).objectFit === "cover"
-          );
-        }),
-      };
-    });
+    await page.waitForFunction(
+      () =>
+        document.querySelector(".hero-art").dataset.comparisonState === "error",
+    );
+    assert.equal(await range.count(), 1);
     assert.ok(
-      fit.fits && Math.abs(fit.width / fit.height - 15 / 8) < 0.03,
-      `image fit at ${width}`,
+      await page
+        .locator(".comparison img")
+        .first()
+        .evaluate((img) => img.naturalWidth > 0),
+    );
+    const mobileContext = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const touchPage = await mobileContext.newPage();
+    await touchPage.goto("http://127.0.0.1:4175");
+    await touchPage.evaluate(mountFixture);
+    await touchPage.waitForFunction(
+      () =>
+        document.querySelector(".hero-art").dataset.comparisonState === "ready",
+    );
+    const touchSlider = touchPage.getByRole("slider");
+    await touchSlider.waitFor();
+    await touchSlider.scrollIntoViewIfNeeded();
+    const touchBox = await touchSlider.boundingBox();
+    const session = await mobileContext.newCDPSession(touchPage);
+    const touch = (type, fraction) =>
+      session.send("Input.dispatchTouchEvent", {
+        type,
+        touchPoints:
+          type === "touchEnd"
+            ? []
+            : [
+                {
+                  x: touchBox.x + touchBox.width * fraction,
+                  y: touchBox.y + touchBox.height * 0.5,
+                },
+              ],
+      });
+    await touch("touchStart", 0.3);
+    await touch("touchMove", 0.7);
+    await touch("touchEnd", 0.7);
+    assert.ok(Math.abs(Number(await touchSlider.inputValue()) - 70) <= 2);
+    await mobileContext.close();
+    assert.deepEqual(errors, []);
+    console.log(
+      "PASS: landscape photo fit at four widths, precise mouse/touch dragging, pointer capture, keyboard endpoints and failed-image fallback.",
+    );
+    console.log(
+      "PASS: hero comparison loads images, responds to keyboard and reaches both reveal endpoints.",
     );
   }
-  await range.scrollIntoViewIfNeeded();
-  const box = await range.boundingBox();
-  await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.5);
-  assert.ok(Math.abs(Number(await range.inputValue()) - 75) <= 1);
-  await page.mouse.move(box.x + box.width + 25, box.y + box.height * 0.5);
-  assert.equal(await range.inputValue(), "100");
-  await page.mouse.move(box.x - 25, box.y + box.height * 0.5);
-  assert.equal(await range.inputValue(), "0");
-  await page.mouse.up();
-  await range.focus();
-  await page.keyboard.press("End");
-  assert.equal(await range.inputValue(), "100");
-  await page.keyboard.press("Home");
-  assert.equal(await range.inputValue(), "0");
-  // A failed replacement must preserve the current visual.
-  await page.evaluate(async () => {
-    const { mountComparison } = await import("/src/comparison.js");
-    mountComparison(document.querySelector(".hero-art"), {
-      before: "data:image/png;base64,invalid",
-      after: "data:image/png;base64,invalid",
-    });
-  });
-  await page.waitForFunction(
-    () =>
-      document.querySelector(".hero-art").dataset.comparisonState === "error",
-  );
-  assert.equal(await range.count(), 1);
-  assert.ok(
-    await page
-      .locator(".comparison img")
-      .first()
-      .evaluate((img) => img.naturalWidth > 0),
-  );
-  const mobileContext = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    isMobile: true,
-    hasTouch: true,
-  });
-  const touchPage = await mobileContext.newPage();
-  await touchPage.goto("http://127.0.0.1:4175");
-  await touchPage.evaluate(mountFixture);
-  const touchSlider = touchPage.getByRole("slider");
-  await touchSlider.waitFor();
-  await touchSlider.scrollIntoViewIfNeeded();
-  const touchBox = await touchSlider.boundingBox();
-  const session = await mobileContext.newCDPSession(touchPage);
-  const touch = (type, fraction) =>
-    session.send("Input.dispatchTouchEvent", {
-      type,
-      touchPoints:
-        type === "touchEnd"
-          ? []
-          : [
-              {
-                x: touchBox.x + touchBox.width * fraction,
-                y: touchBox.y + touchBox.height * 0.5,
-              },
-            ],
-    });
-  await touch("touchStart", 0.3);
-  await touch("touchMove", 0.7);
-  await touch("touchEnd", 0.7);
-  assert.ok(Math.abs(Number(await touchSlider.inputValue()) - 70) <= 2);
-  await mobileContext.close();
-  assert.deepEqual(errors, []);
-  console.log(
-    "PASS: landscape photo fit at four widths, precise mouse/touch dragging, pointer capture, keyboard endpoints and failed-image fallback.",
-  );
-  console.log(
-    "PASS: hero comparison loads images, responds to keyboard and reaches both reveal endpoints.",
-  );
   console.log(
     "PASS: six widths, services, booking policy, Facebook links, section links, mobile navigation, FAQs, no browser errors.",
   );

@@ -18,11 +18,13 @@ Vercel: framework Vite, install `npm ci`, build `npm run build`, output `dist`, 
 
 Business content is in `src/client-config.js` and `src/main.js`. Primary contact links open Messenger at `https://m.me/61594562596712`; a visible Facebook-page fallback is available. Confirm the Messenger destination on a real logged-in phone before presenting the site as launch-ready. No on-site payments, automatic booking, or form delivery are claimed. Travel across the U.S. is by individual arrangement. No phone, address, fee amounts, reviews or certifications have been invented.
 
-The car graphic is an illustration, not a photo of Derek's work. The chat photos were not available as local files, so they are not included as a fabricated portfolio. Add original approved photos when available. Confirm the final public name and booking-fee terms with Derek: the introduction says credit applies “where applicable”, while the later poster states it without qualification.
+## Local photos and repair gallery
 
-## Hero before/after
+All 11 original uploads in `images/` are preserved. `src/repair-images.js` references them using static asset URLs; Vite emits versioned local files for Vercel. The hero uses the blue-car before/after slider, with no Facebook image dependency or expiring URLs. Different camera angles mean the photos do not align exactly.
 
-The hero comparison is prepared in `src/comparison.js`. Supply original blue-car photos in `public/images/`, then set `heroComparison.before` and `heroComparison.after` in `src/client-config.js` to their `/images/...` URLs. Both are currently configured with the supplied signed Facebook CDN URLs because Cloud egress blocks that image host (HTTP 403). Visitors load those URLs directly; they may expire or be blocked by Facebook. Replace them with local copies for reliable long-term hosting. If either photo fails to load, the illustration remains. The two source photos have different camera angles; the reveal compares them but does not imply precise alignment. A 15:8 landscape frame fills with both photos using object-fit: cover, cropping excess edges without stretching. Pointer capture keeps the divider aligned with mouse/touch dragging; keyboard control remains native. Failed or stale image loads cannot replace a newer comparison. The native range control supports touch, mouse, and arrow keys.
+Four additional repair pairs use Before/After buttons and an accessible full-size photo dialog. Gallery previews crop to a consistent frame; the dialog shows each entire original image with contain sizing, including portrait photos. Gallery and AC-service photos load lazily. The service photo appears next to Derek’s introduction. No work descriptions, locations, timelines or prices have been invented.
+
+The native range input supports keyboard, precise mouse/touch dragging and pointer capture. Failed or stale image loads cannot replace a newer comparison.
 
 ## Conversion and mobile design
 
@@ -30,7 +32,7 @@ The single primary action is “Message Derek”, linking directly to Messenger 
 
 Mobile design includes 44px or larger contact/navigation targets, safe-area padding, reduced-motion support and keyboard-operable comparison controls. The floating Messenger action hides while the main contact button is visible. No extra third-party scripts or frontend libraries are required.
 
-Checks cover six widths from 320px to 1440px, overflow, navigation, FAQs, reviews, the absence of the retired form, direct Messenger link targets, mobile CTA visibility, and comparison keyboard/endpoints using fixture images. They do not establish Facebook login availability, real photo delivery or real-world Messenger routing.
+Checks cover six widths from 320px to 1440px, overflow, navigation, FAQs, reviews, the absence of the retired form, direct Messenger link targets, mobile CTA visibility, and comparison keyboard/endpoints using fixture images. They also verify all local photos, gallery toggles, full-image viewing, Escape and focus return. They do not establish Facebook login availability or real-world Messenger routing. Run `TEST_PRODUCTION=1 npm run test:browser` after building to exercise the built Vercel assets through Vite preview.
 
 ## Brand and customer reviews
 

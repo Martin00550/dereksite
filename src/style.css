@@ -581,11 +581,6 @@ nav {
   margin-top: 17px;
 }
 
-
-
-
-
-
 .about-grid {
   display: block;
   max-width: 780px;
@@ -912,8 +907,6 @@ footer {
     font-size: 15px;
     min-height: 155px;
   }
-
-
 }
 @media (max-width: 700px) {
   :root {
@@ -1175,8 +1168,6 @@ footer {
     font-size: 13px;
   }
 
-
-
   .about-copy > p:not(.eyebrow) {
     font-size: 13px;
   }
@@ -1325,5 +1316,230 @@ footer {
   .facebook-fallback {
     min-height: 44px;
     margin-top: 8px;
+  }
+}
+.work-section {
+  background: #080f1c;
+  border-top: 1px solid var(--line);
+}
+.project-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+.project-card {
+  border: 1px solid #2a3e55;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #0d192a;
+}
+.project-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border: 0;
+  padding: 0;
+  background: #07111f;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.project-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s;
+}
+.project-photo:hover img {
+  transform: scale(1.025);
+}
+.project-photo-label {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: white;
+  background: #061324dc;
+  border: 1px solid #48779c;
+  padding: 5px 10px;
+}
+.project-enlarge {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: #071426de;
+  border: 1px solid #547a9e;
+  color: white;
+  padding: 8px;
+  display: grid;
+  place-items: center;
+}
+.project-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 22px;
+}
+.project-caption h3 {
+  font-size: 21px;
+  line-height: 1.2;
+}
+.photo-switch {
+  display: flex;
+  gap: 3px;
+  background: #060e1b;
+  border: 1px solid #2b4560;
+  border-radius: 5px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+.photo-switch button {
+  border: 0;
+  border-radius: 3px;
+  padding: 8px 13px;
+  font-size: 11px;
+  min-height: 40px;
+  min-width: 66px;
+  background: transparent;
+  color: #a7bfd6;
+}
+.photo-switch button[aria-pressed="true"] {
+  background: #116ed0;
+  color: white;
+}
+.workshop-photo {
+  margin: 0;
+  border: 1px solid #2a4b68;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #0d192a;
+}
+.workshop-photo img {
+  display: block;
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  object-position: center;
+}
+.workshop-photo figcaption {
+  padding: 14px 20px;
+  color: #a9bfd6;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1fr;
+  max-width: 1240px;
+  gap: 65px;
+  align-items: center;
+}
+#repair-photo-dialog {
+  color: #edf5ff;
+  background: #091426;
+  border: 1px solid #3a5977;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: min(1000px, calc(100vw - 30px));
+  width: 1000px;
+  max-height: 94svh;
+}
+#repair-photo-dialog::backdrop {
+  background: #01060de8;
+  backdrop-filter: blur(5px);
+}
+.photo-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.photo-dialog-header h3 {
+  font-size: 20px;
+  line-height: 1.4;
+}
+.photo-close {
+  color: #fff;
+  background: #152d47;
+  border: 1px solid #44627e;
+  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  font-size: 27px;
+  flex-shrink: 0;
+}
+#repair-photo-dialog > img {
+  display: block;
+  width: 100%;
+  height: 65svh;
+  object-fit: contain;
+  background: #040a13;
+}
+#repair-photo-dialog > .photo-switch {
+  width: max-content;
+  margin: 16px auto 0;
+}
+.photo-dialog-open {
+  overflow: hidden;
+}
+@media (max-width: 1050px) {
+  .about-grid {
+    gap: 35px;
+  }
+  .project-caption {
+    padding: 18px;
+    flex-wrap: wrap;
+  }
+  .project-caption h3 {
+    font-size: 20px;
+  }
+}
+@media (max-width: 700px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .project-caption {
+    padding: 18px;
+    gap: 15px;
+  }
+  .project-caption h3 {
+    font-size: 21px;
+  }
+  .photo-switch button {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+  .workshop-photo img {
+    height: auto;
+    max-height: 480px;
+    object-fit: cover;
+  }
+  .photo-dialog-header h3 {
+    font-size: 17px;
+  }
+  #repair-photo-dialog {
+    padding: 14px;
+  }
+  #repair-photo-dialog > img {
+    height: 62svh;
+  }
+  .project-photo-label {
+    top: 14px;
+    left: 14px;
+  }
+  .project-photo {
+    aspect-ratio: 4/3;
   }
 }

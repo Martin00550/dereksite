@@ -1,15 +1,11 @@
+import { heroPhotos } from "./repair-images.js";
+
 export const client = {
   name: "Derek-AutoForge",
   descriptor: "MOBILE REPAIR",
   messenger: "https://m.me/61594562596712",
   facebook: "https://www.facebook.com/profile.php?id=61594562596712",
-  // User-supplied Facebook photo URLs. Replace with local copies before these signed links expire.
-  heroComparison: {
-    before:
-      "https://scontent.fbts11-1.fna.fbcdn.net/v/t39.30808-6/897309467_122125014681485419_3444235268260938761_n.jpg?stp=dst-jpg_tt6&cstp=mx960x444&ctp=s960x444&_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=5BcGM7wRN_0Q7kNvwFuwsHk&_nc_oc=AdpfrujJHB7u6WRjcjQosjOC1UPkiGW3SbV5OVBUuD-U3dLX4IZidiwxfGHr_HqF3qw&_nc_zt=23&_nc_ht=scontent.fbts11-1.fna&_nc_gid=6fU8Tq2CcgXyfSg9Bur0Yw&_nc_ss=7b2a8&oh=00_AQS5JSLPFy8Gcu-YGheJ5CStpPLHJ52PWR7UDEPRnat2lw&oe=6AF7BCA9",
-    after:
-      "https://scontent.fbts11-1.fna.fbcdn.net/v/t39.30808-6/896301260_122125014657485419_8786045635223078050_n.jpg?stp=dst-jpg_tt6&cstp=mx960x512&ctp=s960x512&_nc_cat=111&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=hcqK4iwGB_8Q7kNvwE4KXfm&_nc_oc=AdqoXZk1UkSjdK8G6rXdczEeVPQ82Q6SF6tBoJ50kf3_NfKiBkSzuYzUky33OdNRb9M&_nc_zt=23&_nc_ht=scontent.fbts11-1.fna&_nc_gid=-1c9wOS1YKFbemmjTqOHpg&_nc_ss=7b2a8&oh=00_AQTg8QlgbdwSiBFpHd9ZAw0ILkE9NmCchKkxzM4vd73cQQ&oe=6AF79DA3",
-  },
+  heroComparison: heroPhotos,
   services: [
     [
       "01",
