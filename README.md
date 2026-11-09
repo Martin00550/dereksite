@@ -16,7 +16,7 @@ npm run build
 
 Vercel: framework Vite, install `npm ci`, build `npm run build`, output `dist`, repository root directory. Production branch: `main`.
 
-Business content is in `src/client-config.js` and `src/main.js`. Primary contact links open Messenger at `https://m.me/61594562596712`; a visible Facebook-page fallback is available. Confirm the Messenger destination on a real logged-in phone before presenting the site as launch-ready. The enquiry composer creates text locally for customers to copy and send themselves; it does not submit a lead or book an appointment. No on-site payments, automatic booking, or form delivery are claimed. Travel across the U.S. is by individual arrangement. No phone, address, fee amounts, reviews or certifications have been invented.
+Business content is in `src/client-config.js` and `src/main.js`. Primary contact links open Messenger at `https://m.me/61594562596712`; a visible Facebook-page fallback is available. Confirm the Messenger destination on a real logged-in phone before presenting the site as launch-ready. No on-site payments, automatic booking, or form delivery are claimed. Travel across the U.S. is by individual arrangement. No phone, address, fee amounts, reviews or certifications have been invented.
 
 The car graphic is an illustration, not a photo of Derek's work. The chat photos were not available as local files, so they are not included as a fabricated portfolio. Add original approved photos when available. Confirm the final public name and booking-fee terms with Derek: the introduction says credit applies “where applicable”, while the later poster states it without qualification.
 
@@ -26,11 +26,11 @@ The hero comparison is prepared in `src/comparison.js`. Supply original blue-car
 
 ## Conversion and mobile design
 
-The primary action is a conversation with Derek. An instant price calculator is deliberately absent because rates, diagnosis, parts and travel vary. Service links lead to a short enquiry composer: vehicle, location and repair needs. The visitor can copy the prepared message, open Messenger and send it there. Fields are never sent to a server, saved to storage or used for analytics. Location is for arranging a visit, not a restriction to one state. Booking and call-out fees remain visible before contact.
+The single primary action is “Message Derek”, linking directly to Messenger from the hero, service cards, header and mobile bar. The final contact section gives a short prompt about what to include, with the Facebook page as a fallback. There is no enquiry form, clipboard step or instant price calculator. Diagnosis, parts and travel are discussed with Derek. Booking and call-out fees remain visible before contact.
 
-Mobile design includes 44px or larger navigation/contact targets, 16px form inputs to avoid iOS input zoom, a bottom Messenger action with safe-area padding, reduced-motion support and keyboard-operable comparison controls. The bottom action hides while the enquiry form is in view. No extra third-party scripts or frontend libraries are required. Social metadata and organization/service structured data avoid inventing a local address or search ranking claims.
+Mobile design includes 44px or larger contact/navigation targets, safe-area padding, reduced-motion support and keyboard-operable comparison controls. The floating Messenger action hides while the main contact button is visible. No extra third-party scripts or frontend libraries are required.
 
-Checks cover six widths from 320px to 1440px, overflow, navigation, FAQ, service links, message composition and validation, successful/denied clipboard access, zero POST submissions, and comparison keyboard/endpoints using fixture images. These tests do not establish Facebook login availability, real photo delivery, or real-world Messenger routing.
+Checks cover six widths from 320px to 1440px, overflow, navigation, FAQs, reviews, the absence of the retired form, direct Messenger link targets, mobile CTA visibility, and comparison keyboard/endpoints using fixture images. They do not establish Facebook login availability, real photo delivery or real-world Messenger routing.
 
 ## Brand and customer reviews
 

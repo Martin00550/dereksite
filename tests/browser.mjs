@@ -114,66 +114,35 @@ try {
   console.log(
     "PASS: six unique text-only reviews, exact full review expansion, five-star labels and mobile review scrolling.",
   );
-  // Enquiries remain local: no endpoint, no automatic submission, no payment.
-  let posts = 0;
-  page.on("request", (r) => {
-    if (r.method() === "POST") posts++;
-  });
-  await page.locator("#vehicle").fill("2018 Dodge Charger");
-  await page.locator("#repair-location").fill("Austin, TX");
-  await page.locator("#repair-needs").fill("Driver-side door damage");
-  await page.getByRole("button", { name: "Prepare my message" }).click();
-  assert.match(
-    await page.locator("#prepared-message").inputValue(),
-    /2018 Dodge Charger[\s\S]*Austin, TX[\s\S]*Driver-side door damage/,
-  );
-  assert.match(
-    await page.locator("#prepared-message").inputValue(),
-    /travel costs/,
-  );
-  await page.evaluate(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: async (text) => {
-          window.copiedMessage = text;
-        },
-      },
-    }),
-  );
-  await page.getByRole("button", { name: "Copy message", exact: true }).click();
   assert.equal(
-    await page.evaluate(() => window.copiedMessage),
-    await page.locator("#prepared-message").inputValue(),
+    await page.locator('form, textarea, input:not([type="range"])').count(),
+    0,
   );
-  assert.match(await page.locator("#copy-status").innerText(), /Copied/);
-  await page.evaluate(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: async () => {
-          throw new Error("denied");
-        },
-      },
-    }),
+  assert.doesNotMatch(
+    await page.locator("body").innerText(),
+    /Prepare a repair enquiry|Prepare my message|Copy message/,
   );
-  await page.getByRole("button", { name: "Copy message", exact: true }).click();
-  assert.match(
-    await page.locator("#copy-status").innerText(),
-    /Select and copy/,
-  );
-  await page.locator("#vehicle").fill("Different vehicle");
-  assert.equal(await page.locator("#message-ready").isVisible(), false);
-  await page.locator("#vehicle").fill("   ");
-  await page.getByRole("button", { name: "Prepare my message" }).click();
-  assert.equal(await page.locator("#message-ready").isVisible(), false);
-  assert.equal(posts, 0);
-  await page.locator("#vehicle").fill("");
-  await page.locator("#repair-location").fill("");
-  await page.locator("#repair-needs").fill("");
-  assert.equal(await page.locator('input[type="number"]').count(), 0);
+  assert.equal(await page.locator(".hero .actions a").count(), 1);
+  for (const selector of [
+    ".hero .actions a",
+    ".service-link",
+    ".contact-panel > .button",
+    ".mobile-booking a",
+  ]) {
+    for (const link of await page.locator(selector).all()) {
+      assert.equal(
+        await link.getAttribute("href"),
+        "https://m.me/61594562596712",
+      );
+    }
+  }
+  await page.locator(".contact-panel > .button").scrollIntoViewIfNeeded();
+  await page.locator(".mobile-booking").waitFor({ state: "hidden" });
+  await page.locator(".hero").scrollIntoViewIfNeeded();
+  await page.locator(".mobile-booking").waitFor({ state: "visible" });
+  assert.deepEqual(errors, []);
   console.log(
-    "PASS: enquiry composition, clipboard success/failure, stale message reset, whitespace validation, zero submissions.",
+    "PASS: no enquiry form, single hero CTA, direct Messenger service links and mobile contact visibility.",
   );
   mkdirSync("test-results", { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
