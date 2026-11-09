@@ -6,7 +6,7 @@ const arrow =
   '<span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span>';
 const message = (text = "Message Derek", cls = "button") =>
   `<a class="${cls}" href="${c.messenger}" target="_blank" rel="noopener noreferrer">${text} ${arrow}</a>`;
-const brand = `<a class="brand" href="#home" aria-label="Derek AutoForge home"><strong>DEREK<span>—</span>AUTOFORGE</strong><small>MOBILE REPAIR</small></a>`;
+const brand = `<a class="brand" href="#home" aria-label="Derek AutoForge home"><strong>DEREK <span>AUTOFORGE</span></strong><small>MOBILE REPAIR</small></a>`;
 const nav =
   '<a href="#services">Services</a><a href="#reviews">Reviews</a><a href="#about">Meet Derek</a><a href="#booking">How to book</a><a href="#faq">FAQs</a>';
 document.querySelector("#app").innerHTML = `
