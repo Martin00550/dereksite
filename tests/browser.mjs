@@ -69,9 +69,51 @@ try {
   assert.equal(await page.locator("#mobile-nav").isVisible(), true);
   await page.locator("#mobile-nav a").first().click();
   assert.equal(await page.locator("#mobile-nav").isVisible(), false);
-  await page.locator("details").first().locator("summary").click();
-  assert.equal(await page.locator("details").first().getAttribute("open"), "");
+  await page.locator("#faq details").first().locator("summary").click();
+  assert.equal(
+    await page.locator("#faq details").first().getAttribute("open"),
+    "",
+  );
   assert.deepEqual(errors, []);
+  assert.equal(await page.locator(".review-card").count(), 6);
+  assert.equal(await page.locator(".review-card img").count(), 0);
+  const names = await page.locator(".review-author strong").allTextContents();
+  assert.equal(new Set(names).size, 6);
+  assert.ok(names.includes("Linda M. Thompson"));
+  assert.equal(
+    await page
+      .getByRole("img", { name: "5 out of 5 stars", exact: true })
+      .count(),
+    6,
+  );
+  await page.locator(".review-card").first().locator("summary").click();
+  assert.match(
+    await page
+      .locator(".review-card")
+      .first()
+      .locator(".review-full p")
+      .innerText(),
+    /I had such a great experience with Derek!/,
+  );
+  const beforeScroll = await page
+    .locator(".review-grid")
+    .evaluate((el) => el.scrollLeft);
+  await page
+    .locator(".review-grid")
+    .evaluate((el) => el.scrollBy({ left: 320, behavior: "instant" }));
+  assert.ok(
+    (await page.locator(".review-grid").evaluate((el) => el.scrollLeft)) >
+      beforeScroll,
+  );
+  assert.ok(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  );
+  assert.deepEqual(errors, []);
+  console.log(
+    "PASS: six unique text-only reviews, exact full review expansion, five-star labels and mobile review scrolling.",
+  );
   // Enquiries remain local: no endpoint, no automatic submission, no payment.
   let posts = 0;
   page.on("request", (r) => {

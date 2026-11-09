@@ -13,3 +13,15 @@ test("business metadata and contact identify Derek without old template claims",
   );
   assert.equal(client.services.length, 6);
 });
+
+import { reviews } from "../src/reviews.js";
+test("supplied reviews are unique and excerpts are literal quotes", () => {
+  assert.equal(reviews.length, 6);
+  assert.equal(new Set(reviews.map((r) => r.name)).size, 6);
+  for (const review of reviews)
+    assert.ok(review.text.includes(review.excerpt), review.name);
+  assert.equal(
+    reviews.filter((r) => r.name === "William J. Anderson").length,
+    1,
+  );
+});
