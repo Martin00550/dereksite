@@ -27,3 +27,15 @@ Production build; business metadata and policy tests; real browser checks at mob
 
 ## Approved service-reach direction from owner conversation
 Do not restrict the public positioning to a particular state or list past service locations as a boundary. Invite customers to share their location. Travel is discussed individually and agreed before booking. Avoid fabricated city landing pages, local addresses and claims of offices in multiple states.
+
+## Booking process — supplied booking poster
+Use a prominent three-step “How to book” section:
+1. Send your vehicle details. Ask customers to include make, model, year, symptoms or repair needs, and location when messaging Derek.
+2. Receive a quote and booking fee. Derek discusses the work, travel where needed, and the applicable booking fee directly.
+3. Pay the booking fee to secure your appointment.
+
+Poster wording: “The booking fee is credited toward your labor cost.” Display this alongside the steps. The earlier introduction qualifies this as “where applicable”; confirm the final terms with Derek before launch rather than inventing exceptions or amounts.
+
+Primary action: “Message Derek to book”, linking to the supplied Facebook profile. No on-site payment flow or automatic appointment confirmation is supplied or authorized. Immediate service requests have a separate call-out fee, as described in the original introduction. Do not describe either fee as a fixed amount, refundable, or free.
+
+Latest poster uses “Derek Automobile Repair”; the conversation uses “Derek-AutoForge Mobile Repair”. Both are source material; final public brand spelling remains to be reconciled with Derek before launch.
