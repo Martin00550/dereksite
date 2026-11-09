@@ -155,7 +155,7 @@ try {
     path: "test-results/derek-desktop.png",
     fullPage: true,
   });
-  await page.evaluate(async () => {
+  const mountFixture = async () => {
     const { mountComparison } = await import("/src/comparison.js");
     const svg = (color) =>
       "data:image/svg+xml," +
@@ -166,7 +166,8 @@ try {
       before: svg("red"),
       after: svg("blue"),
     });
-  });
+  };
+  await page.evaluate(mountFixture);
   const range = page.getByRole("slider", {
     name: "Compare blue car before and after repairs",
   });
@@ -191,6 +192,98 @@ try {
   assert.equal(
     await range.getAttribute("aria-valuetext"),
     "100% before, 0% after",
+  );
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const fit = await page.locator(".comparison").evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      return {
+        width: box.width,
+        height: box.height,
+        fits: [...el.querySelectorAll("img")].every((img) => {
+          const b = img.getBoundingClientRect();
+          return (
+            Math.abs(b.width - box.width) < 1 &&
+            Math.abs(b.height - box.height) < 1 &&
+            getComputedStyle(img).objectFit === "cover"
+          );
+        }),
+      };
+    });
+    assert.ok(
+      fit.fits && Math.abs(fit.width / fit.height - 15 / 8) < 0.03,
+      `image fit at ${width}`,
+    );
+  }
+  await range.scrollIntoViewIfNeeded();
+  const box = await range.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.5);
+  assert.ok(Math.abs(Number(await range.inputValue()) - 75) <= 1);
+  await page.mouse.move(box.x + box.width + 25, box.y + box.height * 0.5);
+  assert.equal(await range.inputValue(), "100");
+  await page.mouse.move(box.x - 25, box.y + box.height * 0.5);
+  assert.equal(await range.inputValue(), "0");
+  await page.mouse.up();
+  await range.focus();
+  await page.keyboard.press("End");
+  assert.equal(await range.inputValue(), "100");
+  await page.keyboard.press("Home");
+  assert.equal(await range.inputValue(), "0");
+  // A failed replacement must preserve the current visual.
+  await page.evaluate(async () => {
+    const { mountComparison } = await import("/src/comparison.js");
+    mountComparison(document.querySelector(".hero-art"), {
+      before: "data:image/png;base64,invalid",
+      after: "data:image/png;base64,invalid",
+    });
+  });
+  await page.waitForFunction(
+    () =>
+      document.querySelector(".hero-art").dataset.comparisonState === "error",
+  );
+  assert.equal(await range.count(), 1);
+  assert.ok(
+    await page
+      .locator(".comparison img")
+      .first()
+      .evaluate((img) => img.naturalWidth > 0),
+  );
+  const mobileContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const touchPage = await mobileContext.newPage();
+  await touchPage.goto("http://127.0.0.1:4175");
+  await touchPage.evaluate(mountFixture);
+  const touchSlider = touchPage.getByRole("slider");
+  await touchSlider.waitFor();
+  await touchSlider.scrollIntoViewIfNeeded();
+  const touchBox = await touchSlider.boundingBox();
+  const session = await mobileContext.newCDPSession(touchPage);
+  const touch = (type, fraction) =>
+    session.send("Input.dispatchTouchEvent", {
+      type,
+      touchPoints:
+        type === "touchEnd"
+          ? []
+          : [
+              {
+                x: touchBox.x + touchBox.width * fraction,
+                y: touchBox.y + touchBox.height * 0.5,
+              },
+            ],
+    });
+  await touch("touchStart", 0.3);
+  await touch("touchMove", 0.7);
+  await touch("touchEnd", 0.7);
+  assert.ok(Math.abs(Number(await touchSlider.inputValue()) - 70) <= 2);
+  await mobileContext.close();
+  assert.deepEqual(errors, []);
+  console.log(
+    "PASS: landscape photo fit at four widths, precise mouse/touch dragging, pointer capture, keyboard endpoints and failed-image fallback.",
   );
   console.log(
     "PASS: hero comparison loads images, responds to keyboard and reaches both reveal endpoints.",

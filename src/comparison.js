@@ -1,6 +1,11 @@
+const pendingMounts = new WeakMap();
+
 // Keep both photos at full width; reveal with clipping rather than resizing.
 export function mountComparison(host, { before, after }) {
   if (!host || !before || !after) return false;
+  const request = Symbol("comparison");
+  pendingMounts.set(host, request);
+  host.dataset.comparisonState = "loading";
   const label = document.createElement("label");
   label.className = "comparison";
   label.style.setProperty("--reveal", "50%");
@@ -10,7 +15,7 @@ export function mountComparison(host, { before, after }) {
     img.alt = alt;
     img.className = className;
     img.width = 960;
-    img.height = 512;
+    img.height = className === "comparison-before" ? 444 : 512;
     img.decoding = "async";
     img.fetchPriority = className === "comparison-after" ? "high" : "auto";
     return img;
@@ -42,12 +47,55 @@ export function mountComparison(host, { before, after }) {
     "Compare blue car before and after repairs",
   );
   slider.setAttribute("aria-valuetext", "50% before, 50% after");
-  slider.addEventListener("input", () => {
+  const sync = () => {
     label.style.setProperty("--reveal", `${slider.value}%`);
     slider.setAttribute(
       "aria-valuetext",
       `${slider.value}% before, ${100 - Number(slider.value)}% after`,
     );
+  };
+  slider.addEventListener("input", sync);
+  slider.setAttribute(
+    "aria-description",
+    "Before and after photos were taken from different camera angles. Use arrow keys or drag to compare.",
+  );
+  let activePointer = null;
+  const move = (event) => {
+    const bounds = slider.getBoundingClientRect();
+    if (!bounds.width) return;
+    slider.value = String(
+      Math.round(
+        Math.max(
+          0,
+          Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100),
+        ),
+      ),
+    );
+    sync();
+  };
+  slider.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    slider.focus({ preventScroll: true });
+    activePointer = event.pointerId;
+    slider.setPointerCapture(event.pointerId);
+    move(event);
+  });
+  slider.addEventListener("pointermove", (event) => {
+    if (event.pointerId === activePointer) move(event);
+  });
+  slider.addEventListener("pointerup", (event) => {
+    if (event.pointerId !== activePointer) return;
+    move(event);
+    activePointer = null;
+    if (slider.hasPointerCapture(event.pointerId))
+      slider.releasePointerCapture(event.pointerId);
+  });
+  slider.addEventListener("pointercancel", () => {
+    activePointer = null;
+  });
+  slider.addEventListener("lostpointercapture", () => {
+    activePointer = null;
   });
   label.append(slider);
   // Preserve the existing hero if either photograph cannot load.
@@ -59,6 +107,8 @@ export function mountComparison(host, { before, after }) {
     });
   Promise.all([loaded(beforeImage), loaded(afterImage)])
     .then(() => {
+      if (pendingMounts.get(host) !== request) return;
+      host.dataset.comparisonState = "ready";
       host.replaceChildren(label);
       host.classList.add("has-comparison");
       host.setAttribute(
@@ -67,7 +117,9 @@ export function mountComparison(host, { before, after }) {
       );
     })
     .catch(() => {
-      /* Existing hero remains visible. */
+      if (pendingMounts.get(host) === request)
+        host.dataset.comparisonState = "error";
+      // Keep the current visual if either photo fails; never show a broken image.
     });
   return true;
 }
