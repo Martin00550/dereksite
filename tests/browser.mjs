@@ -160,6 +160,9 @@ try {
   );
   assert.equal(await page.locator(".project-card").count(), 4);
   for (const card of await page.locator(".project-card").all()) {
+    assert.equal(await card.locator('[data-state="before"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await card.locator(".project-photo-label").textContent(), "Before");
+    assert.match(await card.locator(".project-photo").getAttribute("aria-label"), /before photo/);
     await card.scrollIntoViewIfNeeded();
     for (const state of ["before", "after"]) {
       await card.locator(`[data-state="${state}"]`).click();

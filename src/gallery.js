@@ -21,7 +21,7 @@ export function setupGallery(projects) {
   };
   document.querySelectorAll("[data-project]").forEach((card) => {
     const project = projects[Number(card.dataset.project)];
-    let state = "after";
+    let state = "before";
     const img = card.querySelector("img");
     const opener = card.querySelector(".project-photo");
     card.querySelectorAll("[data-state]").forEach((button) =>
