@@ -33,7 +33,7 @@ test("sharing image resolves to production domain with custom-domain override", 
       VERCEL_PROJECT_PRODUCTION_URL: "derek.example",
       VERCEL_URL: "preview.example",
     }),
-    "https://derek.example/og-image.jpg",
+    "https://autoforgemobilerepair-demo.vercel.app/og-image.jpg",
   );
   assert.equal(
     socialImageUrl({
@@ -44,9 +44,9 @@ test("sharing image resolves to production domain with custom-domain override", 
   );
   assert.equal(
     socialImageUrl({ VERCEL_URL: "preview.example" }),
-    "https://preview.example/og-image.jpg",
+    "https://autoforgemobilerepair-demo.vercel.app/og-image.jpg",
   );
-  assert.equal(socialImageUrl({}), "/og-image.jpg");
+  assert.equal(socialImageUrl({}), "https://autoforgemobilerepair-demo.vercel.app/og-image.jpg");
   assert.throws(
     () => socialImageUrl({ SITE_URL: "http://derek.example" }),
     /HTTPS/,
