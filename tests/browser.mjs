@@ -58,6 +58,13 @@ try {
       ),
     );
   }
+  const socialImage = await page.evaluate(async () => {
+    const img = new Image();
+    img.src = "/og-image.jpg";
+    await img.decode();
+    return [img.naturalWidth, img.naturalHeight];
+  });
+  assert.deepEqual(socialImage, [1200, 630]);
   assert.equal(await page.locator("h1").count(), 1);
   assert.equal(await page.locator(".service-card").count(), 6);
   const text = await page.locator("body").innerText();
@@ -160,9 +167,18 @@ try {
   );
   assert.equal(await page.locator(".project-card").count(), 4);
   for (const card of await page.locator(".project-card").all()) {
-    assert.equal(await card.locator('[data-state="before"]').getAttribute("aria-pressed"), "true");
-    assert.equal(await card.locator(".project-photo-label").textContent(), "Before");
-    assert.match(await card.locator(".project-photo").getAttribute("aria-label"), /before photo/);
+    assert.equal(
+      await card.locator('[data-state="before"]').getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(
+      await card.locator(".project-photo-label").textContent(),
+      "Before",
+    );
+    assert.match(
+      await card.locator(".project-photo").getAttribute("aria-label"),
+      /before photo/,
+    );
     await card.scrollIntoViewIfNeeded();
     for (const state of ["before", "after"]) {
       await card.locator(`[data-state="${state}"]`).click();
@@ -223,15 +239,23 @@ try {
     path: "test-results/derek-mobile.png",
     fullPage: true,
   });
-  await page.locator('.hero').screenshot({path:'test-results/hero-mobile.png'});
-  await page.locator('#work').screenshot({path:'test-results/gallery-mobile.png'});
+  await page
+    .locator(".hero")
+    .screenshot({ path: "test-results/hero-mobile.png" });
+  await page
+    .locator("#work")
+    .screenshot({ path: "test-results/gallery-mobile.png" });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({
     path: "test-results/derek-desktop.png",
     fullPage: true,
   });
-  await page.locator('.hero').screenshot({path:'test-results/hero-desktop.png'});
-  await page.locator('#work').screenshot({path:'test-results/gallery-desktop.png'});
+  await page
+    .locator(".hero")
+    .screenshot({ path: "test-results/hero-desktop.png" });
+  await page
+    .locator("#work")
+    .screenshot({ path: "test-results/gallery-desktop.png" });
   if (!process.env.TEST_PRODUCTION) {
     const mountFixture = async () => {
       const { mountComparison } = await import("/src/comparison.js");

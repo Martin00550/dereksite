@@ -37,3 +37,9 @@ Checks cover six widths from 320px to 1440px, overflow, navigation, FAQs, review
 ## Brand and customer reviews
 
 The current visual system follows the supplied automotive poster: midnight navy (#060c17), electric blue (#1585fa), cyan (#55c8ff), silver-white (#f1f5fa), and gold (#e9bf70). Reviews in `src/reviews.js` are transcribed from the supplied screenshots; William’s repeated screenshot is included once. Six unique customers are displayed after adding Linda’s review. Cards show the individual five-star ratings in the screenshots, exact excerpts, full review disclosure and names. No reviewer photos, fabricated dates, platform endorsements or aggregate rating/schema are added. The long-form review mentioning towing is a customer’s account; it does not add a general towing service or guaranteed response time to the service menu.
+
+## Messenger / Facebook sharing preview
+
+`public/og-image.jpg` is a 1200 × 630 JPEG graphic with the business wordmark, service description and finished blue-car image. The generated graphic original is retained in the workspace; the JPEG export is committed with the website. Open Graph and Twitter large-image tags are present in the built HTML, without client-side injection.
+
+The build uses `SITE_URL` (optional custom HTTPS domain), then Vercel’s `VERCEL_PROJECT_PRODUCTION_URL`, then `VERCEL_URL` to emit an absolute image URL. Local builds without these settings use `/og-image.jpg`. On Vercel, keep system environment variables exposed to the build, or set `SITE_URL` to the actual public domain and redeploy. The image must be publicly accessible without deployment protection. After deployment, use Facebook Sharing Debugger to refresh cached previews. Existing messages may retain their prior preview.
