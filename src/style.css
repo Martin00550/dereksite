@@ -1426,12 +1426,6 @@ footer {
   object-fit: cover;
   object-position: center;
 }
-.workshop-photo figcaption {
-  padding: 14px 20px;
-  color: #a9bfd6;
-  font-size: 11px;
-  letter-spacing: 1px;
-}
 .about-grid {
   display: grid;
   grid-template-columns: 0.85fr 1fr;
